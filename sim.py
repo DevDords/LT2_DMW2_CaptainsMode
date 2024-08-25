@@ -3,21 +3,19 @@ import numpy as np
 import random
 from sklearn.metrics.pairwise import cosine_similarity
 
-print('Welcome to Dota Captain\'s draft')
-side = input('Which side are you playing for?\n A. Radiant \tB. Dire\n')
-ban_first = input('Do you wish to take first ban?\n A. Yes \tB. No\n')
-
 drafts = pd.read_csv('./data/sparse_matrix.csv', index_col=0)
-max_index = drafts.index.max()
-new_index = max_index + 1
-new_row = pd.DataFrame([[0] * drafts.shape[1]], columns=drafts.columns, index=[new_index])
+df_heroes = pd.read_csv('./data/Constants/Constants.Heroes.csv', usecols=['localized_name', 'id'], index_col='id')
 
-ancient1 = 'radiant' if side == 'A' else 'dire'
-ancient2 = 'radiant' if side == 'B' else 'dire'
-drafts = pd.concat([drafts, new_row])
-
-all_drafts = drafts.drop(columns=['radiant_win', 'team'])
-
+def filter_winning_side(match_db, first_move):
+    match_db['first_move_win'] = match_db.apply(
+    lambda row: 1 if (row['radiant_win'] and row['team'] == 0) or (not row['radiant_win'] and row['team'] == 1) else 0,
+    axis=1
+    )
+    if first_move == 'A':
+        return match_db[match_db['first_move_win'] == 1].drop(columns=['radiant_win', 'team', 'first_move_win'])
+    else:
+        return match_db[match_db['first_move_win'] == 0].drop(columns=['radiant_win', 'team', 'first_move_win'])
+    
 def cosine_similarity(vec1, vec2):
     vec1 = np.array(vec1)
     vec2 = np.array(vec2)
@@ -50,9 +48,6 @@ def rank_similarities(df):
     
     return ranked_df
 
-
-
-df_heroes = pd.read_csv('./data/Constants/Constants.Heroes.csv', usecols=['localized_name', 'id'], index_col='id')
 def get_hero_name(id):
     return df_heroes.loc[id, 'localized_name']
 
@@ -72,16 +67,14 @@ def get_hero_id(name):
     else:
         raise ValueError(f"No matching hero found for name: {name}")
 
-    
-    
 def print_similar(similar_drafts, order, current_draft):
     print('\t\t---Suggested Heroes---')
     top_n_similar = similar_drafts.sort_values(by='Cosine_Similarity', ascending=False)
-    top_n_similar = top_n_similar.head(5)
+    top_n_similar = top_n_similar.head(20)
     recommendations = []    
     for index in top_n_similar.index:
         # Get the row from the drafts DataFrame corresponding to the current index
-        similar_row = all_drafts.iloc[index]
+        similar_row = drafts.iloc[index]
         
         # Filter columns in the row that match the pattern '_order'
         matching_columns = similar_row.filter(like=f'_{order}')
@@ -97,6 +90,20 @@ def print_similar(similar_drafts, order, current_draft):
             unique_recommendations = list(set(new_recommendations))
             recommendations.extend(unique_recommendations)        
     print(f'\t\t{list(set(recommendations))[:5]}')
+
+
+print('Welcome to Dota Captain\'s draft')
+side = input('Which side are you playing for?\n A. Radiant \tB. Dire\n')
+ban_first = input('Do you wish to take first ban?\n A. Yes \tB. No\n')
+
+drafts = filter_winning_side(drafts, side)
+
+max_index = drafts.index.max()
+new_index = max_index + 1
+new_row = pd.DataFrame([[0] * drafts.shape[1]], columns=drafts.columns, index=[new_index])
+drafts = pd.concat([drafts, new_row])
+
+
 
 first_phase_ban_1 = [1, 4, 7]
 first_phase_ban_2 = [2, 3, 5, 6]
@@ -177,8 +184,8 @@ for i in range(1, 25):
     # Update the current draft and related data
     current_draft = bans_one + bans_two + team_one + team_two
     column_name = f'{value}_{optimized_order}'
-    all_drafts.iloc[-1, all_drafts.columns.get_loc(column_name)] = 1
-    similar_drafts = rank_similarities(all_drafts)
+    drafts.iloc[-1, drafts.columns.get_loc(column_name)] = 1
+    similar_drafts = rank_similarities(drafts)
     
     print(f'\n---{phase} PHASE {banpick}---')
     print(f'TEAM 1 BANS: {bans_one}')
