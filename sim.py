@@ -70,7 +70,8 @@ def get_hero_id(name):
     if not result.empty:
         return result.index[0]  # Return the first matching index (id)
     else:
-        return None  # Return None if no matching name is found
+        raise ValueError(f"No matching hero found for name: {name}")
+
     
     
 def print_similar(similar_drafts, order, current_draft):
@@ -158,20 +159,23 @@ for i in range(1, 25):
             print_similar(similar_drafts, optimized_order, current_draft)
     else:
         continue
-    prompt = '{} {} hero:'.format(team, banpick)
-    # Get hero name from input
-    name = input(prompt)
-    # print(f'\t{phase} {banpick} phase: selected hero for {team}: {name}')
     
-    # Append the hero to the appropriate team list if it's a pick
+    while True:
+        prompt = '{} {} hero:'.format(team, banpick)
+        # Get hero name from input
+        name = input(prompt)
+        
+        # Attempt to get hero ID
+        try:
+            value = get_hero_id(name)
+            break  # Exit loop if no error
+        except Exception as e:
+            print(f"Error: {e}. Please enter a valid hero name.")
+
     team_list.append(name)
-    # Add the hero to the bans list if it's a ban
-    # if i in all_bans:
-    #     bans.append(name)
     
     # Update the current draft and related data
     current_draft = bans_one + bans_two + team_one + team_two
-    value = get_hero_id(name)
     column_name = f'{value}_{optimized_order}'
     all_drafts.iloc[-1, all_drafts.columns.get_loc(column_name)] = 1
     similar_drafts = rank_similarities(all_drafts)
@@ -181,4 +185,3 @@ for i in range(1, 25):
     print(f'TEAM 1 PICKS: {team_one}\n')
     print(f'TEAM 2 BANS: {bans_two}')
     print(f'TEAM 2 PICKS: {team_two}')
-    
