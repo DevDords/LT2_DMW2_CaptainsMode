@@ -69,15 +69,15 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
                 if len(high_consequents) == 3:
                     break  # Stop after finding the top 3
         if len(low_consequents) + len(high_consequents) > 0:
+            print(f"Recommended {is_ban}s based on draft order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
             if len(low_consequents)  > 0:
-                print(f"Enemy is trying to pick any of these heroes based on their ban:")
+                print(f"Enemy is trying to pick any of these heroes based on their ban and current draft order:")
                 print_list(low_consequents)
             if len(high_consequents) > 0:
                 print(f"Enemy wants to combo their heroes with one of these heroes:")
                 print_list(high_consequents)
-            print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
         else:
-            print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
+            print(f"Recommended {is_ban}s based on draft order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
     else:
         if not user_picks and not enemy_picks: # select first pick from most band or most first picked hero (META OR OP HERO)
             get_priority_heroes(sparse_matrix, current_draft)
@@ -102,13 +102,13 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
                     if len(high_consequents) == 3:
                         break  # Stop after finding the top 3
             if len(low_consequents) + len(high_consequents) > 0:
+                print(f"Recommended {is_ban}s based on draft order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
                 print(f"Probably counter to enemy picks:")
                 print_list(low_consequents)
                 print(f"Combo your hero with these heroes:")
                 print_list(high_consequents)
-                print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
             else:
-                print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
+                print(f"Recommended {is_ban}s based on draft order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
 
 
 # get user side of user
@@ -191,23 +191,21 @@ def get_win_rate(only_drafts, is_team1=True):
     norms = np.linalg.norm(matrix, axis=1) * np.linalg.norm(last_row)
     similarities = np.divide(dot_products, norms, out=np.zeros_like(dot_products), where=norms != 0)
     
-    # Get the similarity scores for all matches except the last one
-    similarity_scores = pd.Series(similarities[:10], index=only_drafts.index[:10])
+    # Get the similarity scores
+    similarity_scores = pd.Series(similarities[:-1], index=only_drafts.index[:-1])
+    similarity_scores = similarity_scores.sort_values(ascending=False).head(10)
     
-    # Use vectorized operations to calculate win count
-    match_ids = similarity_scores.index
-    radiant_wins = matches.loc[match_ids, 'radiant_win'].values
-    teams_selected = matches.loc[match_ids, 'team'].values
+    # add indicator columns
+    winrate = pd.DataFrame(similarity_scores).merge(matches[['radiant_win', 'team']], left_index=True, right_index=True)
     
     # Determine the win conditions based on the team
     if is_team1:
-        win_conditions = (teams_selected == 0) & (radiant_wins == True) | (teams_selected == 1) & (radiant_wins == False)
+        winrate['win'] = (winrate['radiant_win'] & (winrate['team'] == 0)) | (~winrate['radiant_win'] & (winrate['team'] == 1))
+        print(f"Total Win Probability of User lineup: {winrate['win'].sum() / len(winrate) * 100}%")
     else:
-        win_conditions = (teams_selected == 0) & (radiant_wins == False) | (teams_selected == 1) & (radiant_wins == True)
-    
-    win_count = np.sum(win_conditions)
-    
-    return win_count
+        winrate['win'] = (~winrate['radiant_win'] & (winrate['team'] == 0)) | (winrate['radiant_win'] & (winrate['team'] == 1))
+        print(f"Total Win Probability of User lineup: {winrate['win'].sum() / len(winrate) * 100}%")
+
 
 def start_draft(utility_matrix, ban_first):
 
@@ -295,7 +293,7 @@ if __name__ == "__main__":
     df_heroes = pd.read_csv('./data/Constants/Constants.Heroes.csv', usecols=['id', 'localized_name'])
     
     # load matches reference for winrate
-    matches = pd.read_csv('./data/whole_draft.csv', index_col=0, low_memory=False)
+    matches = pd.read_csv('./data/whole_draft.csv', index_col=0)
     
     only_drafts = matches.drop(columns=['radiant_win', 'team'])
     
@@ -316,38 +314,28 @@ if __name__ == "__main__":
 
     # insert current match to utility matrix
     match_id = generate_match_id(draft_db)
-    draft_id = generate_match_id(only_drafts)
+    draft_id = generate_match_id(draft_db)
 
     # utility matrix for recommender
     utility_matrix = insert_match(filtered_db, match_id)
     only_drafts = insert_match(only_drafts, draft_id)
     
     picks_1, picks_2 = start_draft(utility_matrix, ban_first)
-    
-    user_team, enemy_team = (picks_1, picks_2) if ban_first == 'Y' else (picks_2, picks_1)
-    
-    
-    # user_team = ['Shadow Fiend', 'Muerta']
-    # enemy_team = ['Bristleback', 'Slark']
-    
-    # Extract column indices based on hero IDs
-    user_ids = [hero_id_name(hero, 'id') for hero in user_team]
-    enemy_ids = [hero_id_name(hero, 'id') for hero in enemy_team]
 
-  
-    for id in user_ids:
-        only_drafts.loc[draft_id, id] = 1
-    for id in enemy_ids:
-        only_drafts.loc[draft_id, id] = 2
-
-    # Call the function to get win rate
-    sim1 = get_win_rate(only_drafts, True)
-    
-    for id in user_ids:
-        only_drafts.loc[draft_id, id] = 2
-    for id in enemy_ids:
-        only_drafts.loc[draft_id, id] = 1
-
-    sim2 = get_win_rate(only_drafts, False)
-    
-    print(f'Winning Probability: {(sim1+sim2)/20}')
+    if ban_first == 'Y':
+        user_ids = [hero_id_name(hero, 'id') for hero in picks_1]
+        enemy_ids = [hero_id_name(hero, 'id') for hero in picks_2]
+        for id in user_ids:
+            only_drafts.loc[draft_id, id] = 1
+        for id in enemy_ids:
+            only_drafts.loc[draft_id, id] = 2
+        get_win_rate(only_drafts, True)
+    else:
+        user_ids = [hero_id_name(hero, 'id') for hero in picks_2]
+        enemy_ids = [hero_id_name(hero, 'id') for hero in picks_1]
+        for id in user_ids:
+            only_drafts.loc[draft_id, id] = 2
+        for id in enemy_ids:
+            only_drafts.loc[draft_id, id] = 1
+        get_win_rate(only_drafts, False)
+                     
