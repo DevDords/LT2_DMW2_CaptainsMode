@@ -66,11 +66,11 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
                 if len(high_consequents) == 3:
                     break  # Stop after finding the top 3
         if len(low_consequents) + len(high_consequents) > 0:
-            print(f"Enemy is trying to pick any of these heroes based on their ban: {low_consequents}")
-            print(f"Enemy wants to combo their heroes with one of these heroes: {high_consequents}")
-            print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
+            print(f"Enemy is trying to pick any of these heroes based on their ban:\n\t{low_consequents}")
+            print(f"Enemy wants to combo their heroes with one of these heroes:\n\t{high_consequents}")
+            print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
         else:
-            print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
+            print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
     else:
         if not user_picks and not enemy_picks: # select first pick from most band or most first picked hero (META OR OP HERO)
             get_priority_heroes(sparse_matrix, current_draft)
@@ -95,11 +95,11 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
                     if len(high_consequents) == 3:
                         break  # Stop after finding the top 3
             if len(low_consequents) + len(high_consequents) > 0:
-                print(f"Probably counter to enemy picks: {low_consequents}")
-                print(f"Combo your hero with these heroes: {high_consequents}")
-                print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
+                print(f"Probably counter to enemy picks:\n\t{low_consequents}")
+                print(f"Combo your hero with these heroes:\n\t{high_consequents}")
+                print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
             else:
-                print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
+                print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
 
 
 # get user side of user
@@ -108,10 +108,10 @@ def get_side():
         side = input('Which side are you playing for?\n A. Radiant \tB. Dire\n').strip().upper()
         if side in ['A', 'B']:
             side = 'radiant' if side == 'A' else 'dire'
-            print("Your side is", side.title())
+            print("Your side is", side.title(), "\n")
             return side
         else:
-            print("Invalid choice. Please enter 'A' for Radiant or 'B' for Dire.")
+            print("Invalid choice. Please enter 'A' for Radiant or 'B' for Dire.", "\n")
 
 
 # determine team to first move
@@ -122,10 +122,10 @@ def get_ban_first():
             user = 'TEAM 1 (first to ban)' if ban_first == 'Y' else 'TEAM 2 (last to pick)'            
             enemy = 'TEAM 1 (first to ban)' if ban_first == 'N' else 'TEAM 2 (last to pick)'
             print("You are", user)
-            print("Enemy is", enemy)
+            print("Enemy is", enemy, "\n")
             return ban_first
         else:
-            print("Invalid choice. Please enter 'Y' for Yes or 'N' for No.")
+            print("Invalid choice. Please enter 'Y' for Yes or 'N' for No.", "\n")
 
 
 # generate match id
@@ -165,7 +165,7 @@ def get_priority_heroes(match_db, current_draft):
 
     print(
         f"Most banned heroes that are still available: {', '.join(top_bans_name)}\n"
-        f"Most picked heroes that are still available: {', '.join(top_picks_name)}"
+        f"Most picked heroes that are still available: {', '.join(top_picks_name)}", "\n"
     )
 
 
@@ -244,7 +244,7 @@ def start_draft(utility_matrix, ban_first):
         index_recos = cosim_recos(utility_matrix, order_phase[turn], current_draft, 20)
         
         print(f'\n---{phase} PHASE {banpick}---')
-        print(f"User are TEAM {1 if ban_first == 'Y' else 2}")
+        print(f"User is TEAM {1 if ban_first == 'Y' else 2}")
         print(f'TEAM 1 BANS: {bans_team1}')
         print(f'TEAM 1 PICKS: {picks_team1}\n')
         print(f'TEAM 2 BANS: {bans_team2}')
