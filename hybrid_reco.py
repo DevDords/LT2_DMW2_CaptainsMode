@@ -256,7 +256,9 @@ if __name__ == "__main__":
 
     # insert current match to utility matrix
     match_id = generate_match_id(draft_db)
-    utility_matrix = insert_match(filtered_db, match_id)
 
     # utility matrix for recommender
-    utility_matrix
+    utility_matrix = insert_match(filtered_db, match_id)
+
+    start_draft(utility_matrix, ban_first)
+    
