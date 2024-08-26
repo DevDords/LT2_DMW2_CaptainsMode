@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pickle
-
+import os
 
 # get hero name/id
 def hero_id_name(key, get_what='name'):
@@ -36,6 +36,9 @@ def cosim_recos(utility_matrix, phase, current_draft, top_n=20):
 
     return [int(str(i).split('_')[0]) for i in recos]
 
+def print_list(recos):
+    for reco in recos:
+        print(f'\t{reco}')
 
 # run recommendations with assoc rules
 def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draft):
@@ -66,11 +69,15 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
                 if len(high_consequents) == 3:
                     break  # Stop after finding the top 3
         if len(low_consequents) + len(high_consequents) > 0:
-            print(f"Enemy is trying to pick any of these heroes based on their ban:\n\t{low_consequents}")
-            print(f"Enemy wants to combo their heroes with one of these heroes:\n\t{high_consequents}")
-            print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
+            if len(low_consequents)  > 0:
+                print(f"Enemy is trying to pick any of these heroes based on their ban:")
+                print_list(low_consequents)
+            if len(high_consequents) > 0:
+                print(f"Enemy wants to combo their heroes with one of these heroes:")
+                print_list(high_consequents)
+            print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
         else:
-            print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
+            print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
     else:
         if not user_picks and not enemy_picks: # select first pick from most band or most first picked hero (META OR OP HERO)
             get_priority_heroes(sparse_matrix, current_draft)
@@ -97,9 +104,9 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
             if len(low_consequents) + len(high_consequents) > 0:
                 print(f"Probably counter to enemy picks:\n\t{low_consequents}")
                 print(f"Combo your hero with these heroes:\n\t{high_consequents}")
-                print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
+                print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
             else:
-                print(f"Recommended bans based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
+                print(f"Recommended {is_ban}s based on pick and bans order:\n\t{[hero_id_name(i) for i in recos[:3]]}")
 
 
 # get user side of user
@@ -233,7 +240,7 @@ def start_draft(utility_matrix, ban_first):
                 value = hero_id_name(name, 'id')
                 break  # Exit loop if no error
             except Exception as e:
-                print(f"Error: {e}. Please enter a valid hero name.")
+                print(f"Error: Please enter a valid hero name.")
 
         team_list.append(name)
         
@@ -248,7 +255,7 @@ def start_draft(utility_matrix, ban_first):
         print(f'TEAM 1 BANS: {bans_team1}')
         print(f'TEAM 1 PICKS: {picks_team1}\n')
         print(f'TEAM 2 BANS: {bans_team2}')
-        print(f'TEAM 2 PICKS: {picks_team2}\n\n\n\n')
+        print(f'TEAM 2 PICKS: {picks_team2}\n\n')
 
 
 
