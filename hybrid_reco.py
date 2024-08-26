@@ -219,7 +219,7 @@ def start_draft(utility_matrix, ban_first):
 
         # get input for ban or pick    
         while True:
-            prompt = '{} {} hero:'.format(team, banpick)
+            prompt = '{} {} hero: '.format(team, banpick)
             # Get hero name from input
             name = input(prompt)
             if name == 'exit':
