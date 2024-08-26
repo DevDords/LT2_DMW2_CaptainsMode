@@ -226,6 +226,7 @@ def start_draft(utility_matrix, ban_first):
                 break
             if name in current_draft:
                 print('Hero is already banned or picked')
+                continue
             
             # Attempt to get hero ID
             try:
