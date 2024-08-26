@@ -308,7 +308,7 @@ if __name__ == "__main__":
     # lowest lifts (to prevent sorting everytime)
     low_rules = sorted(rules, key=lambda x: x['lift'])
 
-    # get  match information
+    # get match information
     draft_db = sparse_matrix.copy()
     side = get_side()
     ban_first = get_ban_first()
