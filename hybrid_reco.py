@@ -224,6 +224,8 @@ def start_draft(utility_matrix, ban_first):
             name = input(prompt)
             if name == 'exit':
                 break
+            if name in current_draft:
+                print('Hero is already banned or picked')
             
             # Attempt to get hero ID
             try:
