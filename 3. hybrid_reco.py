@@ -36,9 +36,11 @@ def cosim_recos(utility_matrix, phase, current_draft, top_n=20):
 
     return [int(str(i).split('_')[0]) for i in recos]
 
+
 def print_list(recos):
     for reco in recos:
         print(f'\t{reco}')
+
 
 # run recommendations with assoc rules
 def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draft):
@@ -136,6 +138,7 @@ def get_ban_first():
         else:
             print("Invalid choice. Please enter 'Y' for Yes or 'N' for No.", "\n")
 
+
 # generate match id
 def generate_match_id(recent_match_id):
     return recent_match_id.index.max() + 1
@@ -166,14 +169,14 @@ def get_priority_heroes(match_db, current_draft):
     priority_bans = match_db.filter(regex='_1$').sum(axis=0)
     priority_picks = match_db.filter(regex='_8$').sum(axis=0)
     priority_picks = priority_picks.loc[~priority_picks.index.str.replace('_8', '').astype(int).isin(draft_heroids)]
-    top_bans_id = priority_bans.nlargest(3).index.str.replace('_1', '').astype(int).tolist()
-    top_picks_id = priority_picks.nlargest(3).index.str.replace('_8', '').astype(int).tolist()
+    top_bans_id = priority_bans.nlargest(5).index.str.replace('_1', '').astype(int).tolist()
+    top_picks_id = priority_picks.nlargest(5).index.str.replace('_8', '').astype(int).tolist()
     top_bans_name = [f"{hero_id_name(id, 'name')}" for id in top_bans_id]
     top_picks_name = [f"{hero_id_name(id, 'name')}" for id in top_picks_id]
 
     print(
-        f"Most banned heroes that are still available: {', '.join(top_bans_name)}\n"
-        f"Most picked heroes that are still available: {', '.join(top_picks_name)}", "\n"
+        f"Most banned heroes: {', '.join(top_bans_name)}\n"
+        f"Most picked heroes: {', '.join(top_picks_name)}", "\n"
     )
 
 
@@ -181,6 +184,7 @@ def get_priority_heroes(match_db, current_draft):
 def slice_utility(utility_matrix, phase):
     cols = [col for col in utility_matrix.columns if int(str(col).split('_')[-1]) < phase]
     return utility_matrix[cols]
+
     
 def get_win_rate(only_drafts, is_team1=True):
     # Calculate dot products and norms for similarity scores
@@ -322,20 +326,17 @@ if __name__ == "__main__":
     
     picks_1, picks_2 = start_draft(utility_matrix, ban_first)
 
+    # evaluate score
     if ban_first == 'Y':
-        user_ids = [hero_id_name(hero, 'id') for hero in picks_1]
-        enemy_ids = [hero_id_name(hero, 'id') for hero in picks_2]
-        for id in user_ids:
+        for id in [hero_id_name(hero, 'id') for hero in picks_1]:
             only_drafts.loc[draft_id, id] = 1
-        for id in enemy_ids:
+        for id in [hero_id_name(hero, 'id') for hero in picks_2]:
             only_drafts.loc[draft_id, id] = 2
         get_win_rate(only_drafts, True)
     else:
-        user_ids = [hero_id_name(hero, 'id') for hero in picks_2]
-        enemy_ids = [hero_id_name(hero, 'id') for hero in picks_1]
-        for id in user_ids:
+        for id in [hero_id_name(hero, 'id') for hero in picks_2]:
             only_drafts.loc[draft_id, id] = 2
-        for id in enemy_ids:
+        for id in [hero_id_name(hero, 'id') for hero in picks_1]:
             only_drafts.loc[draft_id, id] = 1
         get_win_rate(only_drafts, False)
                      
