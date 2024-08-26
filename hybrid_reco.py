@@ -247,7 +247,7 @@ def start_draft(utility_matrix, ban_first):
         print(f'TEAM 1 BANS: {bans_team1}')
         print(f'TEAM 1 PICKS: {picks_team1}\n')
         print(f'TEAM 2 BANS: {bans_team2}')
-        print(f'TEAM 2 PICKS: {picks_team2}')
+        print(f'TEAM 2 PICKS: {picks_team2}\n\n\n\n')
 
 
 
