@@ -29,9 +29,9 @@ def cosim_recos(utility_matrix, phase, current_draft, top_n=20):
 
     # check if the reco from highest similarity is already in current draft
     for i in match_id:
-        reco = utility_matrix.loc[match_id, cols_to_get].eq(1)
+        reco = utility_matrix.loc[i, cols_to_get].eq(1)
         recos += reco[reco].index.tolist()
-        if len(recos) == top_n:
+        if len(recos) >= top_n:
             break
 
     return [int(str(i).split('_')[0]) for i in recos]
@@ -46,7 +46,7 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
     user_picks = [hero_id_name(key, 'id') for key in user_picks]
 
     if is_ban == 'ban':
-        for rule in low_rules: # get consequent with lowest lift based on enemy ban
+        for rule in low_rules: # get consequent with lowest lift based on enemy ban (their target hero)
             if rule['antecedent'] == tuple(enemy_bans) and rule['consequent'] in recos:
                 low_consequents.append((
                     hero_id_name(rule['consequent']),
@@ -56,7 +56,7 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
             if len(low_consequents) == 3:
                 break  # Stop after finding the top 3
         if enemy_picks:
-            for rule in rules:
+            for rule in rules:  # get consequent with highest lift based on enemy picks (synergy picks)
                 if rule['antecedent'] == tuple(enemy_picks) and rule['consequent'] in recos:
                     high_consequents.append((
                         hero_id_name(rule['consequent']),
@@ -65,28 +65,41 @@ def check_recos(is_ban, enemy_bans, enemy_picks, user_picks, recos, current_draf
                         ))
                 if len(high_consequents) == 3:
                     break  # Stop after finding the top 3
-        if len(low_consequents) + len(high_consequents) > 2:
+        if len(low_consequents) + len(high_consequents) > 0:
             print(f"Enemy is trying to pick any of these heroes based on their ban: {low_consequents}")
             print(f"Enemy wants to combo their heroes with one of these heroes: {high_consequents}")
+            print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
         else:
             print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
     else:
-        if user_picks:
-            for rule in rules:
-                if rule['antecedent'] == tuple(user_picks) and rule['consequent'] in recos:
-                    high_consequents.append((
+        if not user_picks and not enemy_picks: # select first pick from most band or most first picked hero (META OR OP HERO)
+            get_priority_heroes(sparse_matrix, current_draft)
+        else:            
+            for rule in low_rules: # get consequent with lowest lift based on enemy picks (probable counterpick)
+                if rule['antecedent'] == tuple(enemy_picks) and rule['consequent'] in recos:
+                    low_consequents.append((
                         hero_id_name(rule['consequent']),
                         f"confidence: {rule['confidence']}",
                         f"lift: {rule['lift']}"
                         ))
-                if len(high_consequents) == 3:
-                    break  # Stop after finding the top 3            
-            if high_consequents:
-                print(f"Best combo for your heroes: {high_consequents}")
+                if len(low_consequents) == 3:
+                    break  # Stop after finding the top 3
+            if user_picks:
+                for rule in rules:  # get consequent with highest lift based on user picks (synergy picks)
+                    if rule['antecedent'] == tuple(user_picks) and rule['consequent'] in recos:
+                        high_consequents.append((
+                            hero_id_name(rule['consequent']),
+                            f"confidence: {rule['confidence']}",
+                            f"lift: {rule['lift']}"
+                            ))
+                    if len(high_consequents) == 3:
+                        break  # Stop after finding the top 3
+            if len(low_consequents) + len(high_consequents) > 0:
+                print(f"Probably counter to enemy picks: {low_consequents}")
+                print(f"Combo your hero with these heroes: {high_consequents}")
+                print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
             else:
                 print(f"Recommended bans based on pick and bans order: {[hero_id_name(i) for i in recos[:3]]}")
-        else:
-            get_priority_heroes(sparse_matrix, current_draft)
 
 
 # get user side of user
@@ -206,9 +219,11 @@ def start_draft(utility_matrix, ban_first):
 
         # get input for ban or pick    
         while True:
-            prompt = '{} {} hero: '.format(team, banpick)
+            prompt = '{} {} hero:'.format(team, banpick)
             # Get hero name from input
             name = input(prompt)
+            if name == 'exit':
+                break
             
             # Attempt to get hero ID
             try:
@@ -230,6 +245,7 @@ def start_draft(utility_matrix, ban_first):
         print(f'TEAM 1 PICKS: {picks_team1}\n')
         print(f'TEAM 2 BANS: {bans_team2}')
         print(f'TEAM 2 PICKS: {picks_team2}')
+
 
 
 if __name__ == "__main__":
