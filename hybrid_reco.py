@@ -244,6 +244,7 @@ def start_draft(utility_matrix, ban_first):
         index_recos = cosim_recos(utility_matrix, order_phase[turn], current_draft, 20)
         
         print(f'\n---{phase} PHASE {banpick}---')
+        print(f"User are TEAM {1 if ban_first == 'Y' else 2}")
         print(f'TEAM 1 BANS: {bans_team1}')
         print(f'TEAM 1 PICKS: {picks_team1}\n')
         print(f'TEAM 2 BANS: {bans_team2}')
