@@ -316,14 +316,15 @@ if __name__ == "__main__":
     # filter to get recs only from same side winning lineup with same draft order as user
     filtered_db = filter_winning_side(draft_db, ban_first)
 
-    # insert current match to utility matrix
+    # generate match id for current match
     match_id = generate_match_id(draft_db)
     draft_id = generate_match_id(draft_db)
 
     # utility matrix for recommender
     utility_matrix = insert_match(filtered_db, match_id)
     only_drafts = insert_match(only_drafts, draft_id)
-    
+
+    # run captains draft
     picks_1, picks_2 = start_draft(utility_matrix, ban_first)
 
     # evaluate score
