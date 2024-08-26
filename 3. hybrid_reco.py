@@ -166,17 +166,22 @@ def filter_winning_side(match_db, ban_first):
 # get priority first pick or ban
 def get_priority_heroes(match_db, current_draft):
     draft_heroids = [hero_id_name(key, 'id') for key in current_draft]
+
     priority_bans = match_db.filter(regex='_1$').sum(axis=0)
+    priority_bans = priority_bans.loc[~priority_bans.index.str.replace('_1', '').astype(int).isin(draft_heroids)]
+
     priority_picks = match_db.filter(regex='_8$').sum(axis=0)
     priority_picks = priority_picks.loc[~priority_picks.index.str.replace('_8', '').astype(int).isin(draft_heroids)]
-    top_bans_id = priority_bans.nlargest(5).index.str.replace('_1', '').astype(int).tolist()
-    top_picks_id = priority_picks.nlargest(5).index.str.replace('_8', '').astype(int).tolist()
+
+    top_bans_id = priority_bans.nlargest(3).index.str.replace('_1', '').astype(int).tolist()
+    top_picks_id = priority_picks.nlargest(3).index.str.replace('_8', '').astype(int).tolist()
+
     top_bans_name = [f"{hero_id_name(id, 'name')}" for id in top_bans_id]
     top_picks_name = [f"{hero_id_name(id, 'name')}" for id in top_picks_id]
 
     print(
-        f"Most banned heroes: {', '.join(top_bans_name)}\n"
-        f"Most picked heroes: {', '.join(top_picks_name)}", "\n"
+        f"Most banned heroes that is still currently available: {', '.join(top_bans_name)}\n"
+        f"Most picked heroes that is still currently available: {', '.join(top_picks_name)}", "\n"
     )
 
 
@@ -330,14 +335,14 @@ if __name__ == "__main__":
     # evaluate score
     if ban_first == 'Y':
         for id in [hero_id_name(hero, 'id') for hero in picks_1]:
-            only_drafts.loc[draft_id, id] = 1
+            only_drafts.loc[draft_id, f'{id}'] = 1
         for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, id] = 2
+            only_drafts.loc[draft_id, f'{id}'] = 2
         get_win_rate(only_drafts, True)
     else:
         for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, id] = 2
+            only_drafts.loc[draft_id, f'{id}'] = 2
         for id in [hero_id_name(hero, 'id') for hero in picks_1]:
-            only_drafts.loc[draft_id, id] = 1
+            only_drafts.loc[draft_id, f'{id}'] = 1
         get_win_rate(only_drafts, False)
                      
