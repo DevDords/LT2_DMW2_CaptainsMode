@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import os
+from sklearn.preprocessing import LabelEncoder
 
 # get hero name/id
 def hero_id_name(key, get_what='name'):
@@ -192,17 +193,20 @@ def slice_utility(utility_matrix, phase):
 
     
 def get_win_rate(only_drafts, is_team1=True):
+    le = LabelEncoder()
+    encoded_drafts = only_drafts.apply(le.fit_transform)
     # Calculate dot products and norms for similarity scores
-    last_row = only_drafts.iloc[-1].to_numpy()
-    matrix = only_drafts.to_numpy()
+    last_row = encoded_drafts.iloc[-1].to_numpy()
+    matrix = encoded_drafts.to_numpy()
     
     dot_products = np.dot(matrix, last_row)
     norms = np.linalg.norm(matrix, axis=1) * np.linalg.norm(last_row)
-    similarities = np.divide(dot_products, norms, out=np.zeros_like(dot_products), where=norms != 0)
-    
+    similarities = np.divide(dot_products, norms, out=np.zeros_like(dot_products, dtype=np.float64), where=norms != 0)
+
     # Get the similarity scores
     similarity_scores = pd.Series(similarities[:-1], index=only_drafts.index[:-1])
     similarity_scores = similarity_scores.sort_values(ascending=False).head(10)
+    # print(similarity_scores)
     
     # add indicator columns
     winrate = pd.DataFrame(similarity_scores).merge(matches[['radiant_win', 'team']], left_index=True, right_index=True)
@@ -214,6 +218,7 @@ def get_win_rate(only_drafts, is_team1=True):
     else:
         winrate['win'] = (~winrate['radiant_win'] & (winrate['team'] == 0)) | (winrate['radiant_win'] & (winrate['team'] == 1))
         print(f"Total Win Probability of User lineup: {winrate['win'].sum() / len(winrate) * 100}%")
+    # return winrate['win'].sum()
 
 
 def start_draft(utility_matrix, ban_first):
@@ -327,22 +332,27 @@ if __name__ == "__main__":
 
     # utility matrix for recommender
     utility_matrix = insert_match(filtered_db, match_id)
-    only_drafts = insert_match(only_drafts, draft_id)
+    # only_drafts = insert_match(only_drafts, draft_id)
+    new_ro = pd.DataFrame([[''] * only_drafts.shape[1]], columns=only_drafts.columns, index=[match_id])
+    pd.concat([only_drafts, new_ro])
 
-    # run captains draft
+    # # run captains draft
     picks_1, picks_2 = start_draft(utility_matrix, ban_first)
-
+    # picks_1 =['Zeus', 'Sven', 'Mirana', 'Lich', 'Puck']
+    # picks_2 = ['Techies', 'Oracle', 'Primal Beast', 'Gyrocopter', 'Chaos Knight']
+    score = 0
     # evaluate score
     if ban_first == 'Y':
         for id in [hero_id_name(hero, 'id') for hero in picks_1]:
-            only_drafts.loc[draft_id, f'{id}'] = 1
+            only_drafts.loc[draft_id, f'{id}'] = 'A'
         for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, f'{id}'] = 2
+            only_drafts.loc[draft_id, f'{id}'] = 'Z'
         get_win_rate(only_drafts, True)
     else:
-        for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, f'{id}'] = 2
         for id in [hero_id_name(hero, 'id') for hero in picks_1]:
-            only_drafts.loc[draft_id, f'{id}'] = 1
+            only_drafts.loc[draft_id, f'{id}'] = 'Z'
+        for id in [hero_id_name(hero, 'id') for hero in picks_2]:
+            only_drafts.loc[draft_id, f'{id}'] = 'A'
         get_win_rate(only_drafts, False)
-                     
+
+    # print(f'Win rate probability: {(a+b)/20}')
