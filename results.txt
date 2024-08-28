@@ -1,0 +1,3 @@
+User Picks: ['Primal Beast', 'Lich', 'Spirit Breaker', 'Clinkz', 'Zeus']
+Enemy Picks: ['Clockwerk', 'Lina', 'Dazzle', 'Bristleback', 'Slark']
+Winrate: 58.82352941176471

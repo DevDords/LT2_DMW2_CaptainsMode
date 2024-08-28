@@ -365,5 +365,12 @@ if __name__ == "__main__":
     games += game
 
     # total winrate
-    print(f"Total Win Probability of User lineup: {wins / games * 100}%")
+    winrate = wins / games * 100
+    print(f"Total Win Probability of User lineup: {winrate}%")
+    
+    with open('results.txt', 'a') as file:
+        file.write(f"\nUser Picks: {user}\n")
+        file.write(f"Enemy Picks: {enemy}\n")
+        file.write(f"Winrate: {winrate}\n")
+        
                      
