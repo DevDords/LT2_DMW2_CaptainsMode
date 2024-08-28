@@ -236,7 +236,7 @@ def start_draft(utility_matrix, ban_first):
         banpick = 'ban' if turn in all_bans else 'pick'
     
         # Pop the last element from subscript_value
-        column_tag = subscript_value.pop()
+        column_tag = subscript_value.pop(0)
     
         # Get the current phase
         phase = phase_mapping.get(turn, '')
@@ -246,6 +246,7 @@ def start_draft(utility_matrix, ban_first):
             team = 'TEAM 1'
             team_list = picks_team1 if banpick == 'pick' else bans_team1
             if ban_first == 'Y' and turn != 1:
+                index_recos = cosim_recos(utility_matrix, order_phase[turn], current_draft, 20)
                 check_recos(banpick, bans_team2, picks_team2, picks_team1, index_recos, current_draft)
             elif ban_first == 'Y' and turn == 1:
                 get_priority_heroes(sparse_matrix, current_draft)
@@ -254,6 +255,7 @@ def start_draft(utility_matrix, ban_first):
             team = 'TEAM 2'
             team_list = picks_team2 if banpick == 'pick' else bans_team2
             if ban_first == 'N':
+                index_recos = cosim_recos(utility_matrix, order_phase[turn], current_draft, 20)
                 check_recos(banpick, bans_team1, picks_team1, picks_team2, index_recos, current_draft)
         else:
             continue
@@ -282,7 +284,6 @@ def start_draft(utility_matrix, ban_first):
         current_draft = bans_team1 + bans_team2 + picks_team1 + picks_team2
         column_name = f'{value}_{column_tag}'
         utility_matrix.iloc[-1, utility_matrix.columns.get_loc(column_name)] = 1
-        index_recos = cosim_recos(utility_matrix, order_phase[turn], current_draft, 20)
         
         print(f'\n---{phase} PHASE {banpick}---')
         print(f"User is TEAM {1 if ban_first == 'Y' else 2}")
