@@ -203,17 +203,21 @@ def get_win_rate(only_drafts, is_team1=True):
     # Get the similarity scores
     similarity_scores = pd.Series(similarities[:-1], index=only_drafts.index[:-1])
     similarity_scores = similarity_scores.sort_values(ascending=False).head(10)
+    print(similarity_scores)
     
     # add indicator columns
     winrate = pd.DataFrame(similarity_scores).merge(matches[['radiant_win', 'team']], left_index=True, right_index=True)
     
     # Determine the win conditions based on the team
+    wins = 0
     if is_team1:
         winrate['win'] = (winrate['radiant_win'] & (winrate['team'] == 0)) | (~winrate['radiant_win'] & (winrate['team'] == 1))
-        print(f"Total Win Probability of User lineup: {winrate['win'].sum() / len(winrate) * 100}%")
+        wins += winrate['win'].sum()
     else:
         winrate['win'] = (~winrate['radiant_win'] & (winrate['team'] == 0)) | (winrate['radiant_win'] & (winrate['team'] == 1))
-        print(f"Total Win Probability of User lineup: {winrate['win'].sum() / len(winrate) * 100}%")
+        wins += winrate['win'].sum()
+
+    return wins
 
 
 def start_draft(utility_matrix, ban_first):
@@ -292,7 +296,11 @@ def start_draft(utility_matrix, ban_first):
         print(f'TEAM 2 BANS: {bans_team2}')
         print(f'TEAM 2 PICKS: {picks_team2}\n\n')
     
-    return picks_team1, picks_team2
+    # return user team as team1
+    if ban_first == "Y":
+        return picks_team1, picks_team2
+    else:
+        return picks_team2, picks_team1
 
 
 if __name__ == "__main__":
@@ -304,8 +312,6 @@ if __name__ == "__main__":
     
     # load matches reference for winrate
     matches = pd.read_csv('./data/whole_draft.csv', index_col=0)
-    
-    only_drafts = matches.drop(columns=['radiant_win', 'team'])
     
     # import assoc rules
     with open('./data/rules.pkl', 'rb') as file:
@@ -328,22 +334,31 @@ if __name__ == "__main__":
 
     # utility matrix for recommender
     utility_matrix = insert_match(filtered_db, match_id)
-    only_drafts = insert_match(only_drafts, draft_id)
 
     # run captains draft
-    picks_1, picks_2 = start_draft(utility_matrix, ban_first)
+    user, enemy = start_draft(utility_matrix, ban_first)
 
     # evaluate score
-    if ban_first == 'Y':
-        for id in [hero_id_name(hero, 'id') for hero in picks_1]:
-            only_drafts.loc[draft_id, f'{id}'] = 1
-        for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, f'{id}'] = -1
-        get_win_rate(only_drafts, True)
-    else:
-        for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, f'{id}'] = -1
-        for id in [hero_id_name(hero, 'id') for hero in picks_1]:
-            only_drafts.loc[draft_id, f'{id}'] = 1
-        get_win_rate(only_drafts, False)
+    winrate = 0    
+
+    # count wins of user lineup on matches with user lineup found as team 1 vs enemy lineup on team 2
+    only_drafts = matches.drop(columns=['radiant_win', 'team'])
+    only_drafts = insert_match(only_drafts, draft_id)
+    for id in [hero_id_name(hero, 'id') for hero in user]:
+        only_drafts.loc[draft_id, f'{id}'] = 1
+    for id in [hero_id_name(hero, 'id') for hero in enemy]:
+        only_drafts.loc[draft_id, f'{id}'] = -1
+    winrate += get_win_rate(only_drafts, True)
+
+    # count wins of user lineup on matches with user lineup found as team 2 enemy lineup on team 1
+    only_drafts = matches.drop(columns=['radiant_win', 'team'])
+    only_drafts = insert_match(only_drafts, draft_id)
+    for id in [hero_id_name(hero, 'id') for hero in user]:
+        only_drafts.loc[draft_id, f'{id}'] = -1
+    for id in [hero_id_name(hero, 'id') for hero in enemy]:
+        only_drafts.loc[draft_id, f'{id}'] = 1
+    winrate += get_win_rate(only_drafts, False)
+
+    # total winrate
+    print(f"Total Win Probability of User lineup: {winrate / 20 * 100}%")
                      
