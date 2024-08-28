@@ -338,11 +338,11 @@ if __name__ == "__main__":
         for id in [hero_id_name(hero, 'id') for hero in picks_1]:
             only_drafts.loc[draft_id, f'{id}'] = 1
         for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, f'{id}'] = 2
+            only_drafts.loc[draft_id, f'{id}'] = -1
         get_win_rate(only_drafts, True)
     else:
         for id in [hero_id_name(hero, 'id') for hero in picks_2]:
-            only_drafts.loc[draft_id, f'{id}'] = 2
+            only_drafts.loc[draft_id, f'{id}'] = -1
         for id in [hero_id_name(hero, 'id') for hero in picks_1]:
             only_drafts.loc[draft_id, f'{id}'] = 1
         get_win_rate(only_drafts, False)
