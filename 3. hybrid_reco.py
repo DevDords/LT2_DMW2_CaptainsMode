@@ -202,8 +202,7 @@ def get_win_rate(only_drafts, is_team1=True):
     
     # Get the similarity scores
     similarity_scores = pd.Series(similarities[:-1], index=only_drafts.index[:-1])
-    similarity_scores = similarity_scores.sort_values(ascending=False).head(10)
-    print(similarity_scores)
+    similarity_scores = similarity_scores[similarity_scores > 0.3].sort_values(ascending=False)
     
     # add indicator columns
     winrate = pd.DataFrame(similarity_scores).merge(matches[['radiant_win', 'team']], left_index=True, right_index=True)
@@ -217,7 +216,7 @@ def get_win_rate(only_drafts, is_team1=True):
         winrate['win'] = (~winrate['radiant_win'] & (winrate['team'] == 0)) | (winrate['radiant_win'] & (winrate['team'] == 1))
         wins += winrate['win'].sum()
 
-    return wins
+    return wins, len(similarity_scores)
 
 
 def start_draft(utility_matrix, ban_first):
@@ -294,7 +293,8 @@ def start_draft(utility_matrix, ban_first):
         print(f'TEAM 1 BANS: {bans_team1}')
         print(f'TEAM 1 PICKS: {picks_team1}\n')
         print(f'TEAM 2 BANS: {bans_team2}')
-        print(f'TEAM 2 PICKS: {picks_team2}\n\n')
+        print(f'TEAM 2 PICKS: {picks_team2}')
+        print(f'------------------------------------\n\n')
     
     # return user team as team1
     if ban_first == "Y":
@@ -339,7 +339,8 @@ if __name__ == "__main__":
     user, enemy = start_draft(utility_matrix, ban_first)
 
     # evaluate score
-    winrate = 0    
+    wins = 0
+    games = 0   
 
     # count wins of user lineup on matches with user lineup found as team 1 vs enemy lineup on team 2
     only_drafts = matches.drop(columns=['radiant_win', 'team'])
@@ -348,17 +349,21 @@ if __name__ == "__main__":
         only_drafts.loc[draft_id, f'{id}'] = 1
     for id in [hero_id_name(hero, 'id') for hero in enemy]:
         only_drafts.loc[draft_id, f'{id}'] = -1
-    winrate += get_win_rate(only_drafts, True)
+    win, game = get_win_rate(only_drafts, True)
+    wins += win
+    games += game
 
-    # count wins of user lineup on matches with user lineup found as team 2 enemy lineup on team 1
+    # count wins of user lineup on matches with user lineup found as team 2 vs enemy lineup on team 1
     only_drafts = matches.drop(columns=['radiant_win', 'team'])
     only_drafts = insert_match(only_drafts, draft_id)
     for id in [hero_id_name(hero, 'id') for hero in user]:
         only_drafts.loc[draft_id, f'{id}'] = -1
     for id in [hero_id_name(hero, 'id') for hero in enemy]:
         only_drafts.loc[draft_id, f'{id}'] = 1
-    winrate += get_win_rate(only_drafts, False)
+    win, game = get_win_rate(only_drafts, False)
+    wins += win
+    games += game
 
     # total winrate
-    print(f"Total Win Probability of User lineup: {winrate / 20 * 100}%")
+    print(f"Total Win Probability of User lineup: {wins / games * 100}%")
                      
