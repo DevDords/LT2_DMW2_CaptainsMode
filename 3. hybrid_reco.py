@@ -337,7 +337,6 @@ if __name__ == "__main__":
 
     # run captains draft
     user, enemy = start_draft(utility_matrix, ban_first)
-
     # evaluate score
     wins = 0
     games = 0   
@@ -368,7 +367,7 @@ if __name__ == "__main__":
     winrate = wins / games * 100
     print(f"Total Win Probability of User lineup: {winrate}%")
     
-    with open('results.txt', 'a') as file:
+    with open('results1.txt', 'a') as file:
         file.write(f"\nUser Picks: {user}\n")
         file.write(f"Enemy Picks: {enemy}\n")
         file.write(f"Winrate: {winrate}\n")

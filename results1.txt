@@ -1,0 +1,40 @@
+
+User Picks: ['Abaddon', 'Silencer', 'Dragon Knight', 'Ursa', 'Leshrac']
+Enemy Picks: ['Beastmaster', 'Dark Willow', 'Slark', 'Arc Warden', 'Clockwerk']
+Winrate: 33.33333333333333
+
+User Picks: ['Slardar', 'Hoodwink', 'Clockwerk', 'Luna', 'Outworld Devourer']
+Enemy Picks: ['Night Stalker', 'Disruptor', 'Earth Spirit', 'Terrorblade', 'Zeus']
+Winrate: 60.526315789473685
+
+User Picks: ['Elder Titan', 'Terrorblade', 'Snapfire', 'Gyrocopter', 'Kunkka']
+Enemy Picks: ['Ursa', 'Bane', 'Clockwerk', 'Void Spirit', 'Enigma']
+Winrate: 52.63157894736842
+
+User Picks: ['Beastmaster', 'Enchantress', 'Snapfire', 'Windranger', 'Alchemist']
+Enemy Picks: ['Primal Beast', 'Queen of Pain', 'Oracle', 'Luna', 'Mars']
+Winrate: 45.16129032258064
+
+User Picks: ['Ancient Apparition', 'Spectre', 'Legion Commander', 'Enchantress', 'Storm Spirit']
+Enemy Picks: ['Undying', 'Shadow Shaman', 'Phantom Lancer', 'Outworld Devourer', 'Viper']
+Winrate: 85.71428571428571
+
+User Picks: ['Skywrath Mage', 'Dawnbreaker', 'Undying', 'Slark', 'Templar Assassin']
+Enemy Picks: ['Enigma', 'Leshrac', 'Nyx Assassin', 'Terrorblade', 'Bristleback']
+Winrate: 50.0
+
+User Picks: ['Spirit Breaker', 'Witch Doctor', 'Legion Commander', 'Invoker', 'Terrorblade']
+Enemy Picks: ['Ogre Magi', 'Visage', 'Centaur Warrunner', 'Lion', 'Medusa']
+Winrate: 52.0
+
+User Picks: ['Crystal Maiden', 'Rubick', 'Shadow Fiend', 'Timbersaw', 'Wraith King']
+Enemy Picks: ['Tidehunter', 'Dark Willow', 'Pugna', 'Luna', 'Omniknight']
+Winrate: 50.51546391752577
+
+User Picks: ['Techies', 'Magnus', 'Grimstroke', 'Troll Warlord', 'Phantom Assassin']
+Enemy Picks: ['Chaos Knight', 'Ember Spirit', 'Silencer', 'Underlord', 'Jakiro']
+Winrate: 54.54545454545454
+
+User Picks: ['Centaur Warrunner', 'Phoenix', 'Slark', 'Oracle', 'Troll Warlord']
+Enemy Picks: ['Shadow Demon', 'Ogre Magi', 'Razor', 'Bloodseeker', 'Zeus']
+Winrate: 52.94117647058824

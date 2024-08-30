@@ -1,3 +1,40 @@
+
 User Picks: ['Primal Beast', 'Lich', 'Spirit Breaker', 'Clinkz', 'Zeus']
 Enemy Picks: ['Clockwerk', 'Lina', 'Dazzle', 'Bristleback', 'Slark']
 Winrate: 58.82352941176471
+
+User Picks: ['Primal Beast', 'Disruptor', 'Timbersaw', 'Zeus', 'Gyrocopter']
+Enemy Picks: ['Tiny', 'Io', 'Sven', 'Dazzle', 'Mirana']
+Winrate: 58.536585365853654
+
+User Picks: ['Dark Willow', 'Night Stalker', 'Spirit Breaker', 'Templar Assassin', 'Chaos Knight']
+Enemy Picks: ['Silencer', 'Axe', 'Jakiro', 'Magnus', 'Anti-Mage']
+Winrate: 65.38461538461539
+
+User Picks: ['Snapfire', 'Mars', 'Keeper of the Light', 'Morphling', 'Lina']
+Enemy Picks: ['Lion', 'Mirana', 'Timbersaw', 'Dragon Knight', 'Faceless Void']
+Winrate: 50.74626865671642
+
+User Picks: ['Hoodwink', 'Centaur Warrunner', 'Bane', 'Naga Siren', 'Zeus']
+Enemy Picks: ['Treant Protector', 'Viper', 'Drow Ranger', 'Ogre Magi', 'Ember Spirit']
+Winrate: 55.00000000000001
+
+User Picks: ['Phoenix', 'Brewmaster', 'Lion', 'Troll Warlord', 'Pangolier']
+Enemy Picks: ['Dark Seer', 'Disruptor', 'Treant Protector', 'Slark', 'Kunkka']
+Winrate: 53.48837209302325
+
+User Picks: ['Lifestealer', 'Disruptor', 'Enchantress', 'Razor', 'Batrider']
+Enemy Picks: ['Marci', 'Io', 'Gyrocopter', 'Shadow Fiend', 'Viper']
+Winrate: 51.61290322580645
+
+User Picks: ['Phoenix', 'Magnus', 'Mirana', 'Tiny', 'Monkey King']
+Enemy Picks: ['Snapfire', 'Faceless Void', 'Razor', 'Ogre Magi', 'Viper']
+Winrate: 37.5
+
+User Picks: ['Clockwerk', 'Necrophos', 'Doom', 'Chaos Knight', 'Templar Assassin']
+Enemy Picks: ['Dazzle', 'Axe', 'Rubick', 'Bloodseeker', 'Leshrac']
+Winrate: 42.5
+
+User Picks: ['Witch Doctor', 'Mirana', 'Sven', 'Centaur Warrunner', 'Kunkka']
+Enemy Picks: ['Ogre Magi', 'Silencer', 'Shadow Shaman', 'Lion', 'Enigma']
+Winrate: 75.0
